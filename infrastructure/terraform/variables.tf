@@ -239,6 +239,54 @@ variable "cloudfront_price_class" {
   }
 }
 
+# ==================== CI/CD Pipeline ====================
+variable "enable_cicd_pipeline" {
+  description = "Enable CI/CD pipeline with CodePipeline and CodeBuild"
+  type        = bool
+  default     = false
+}
+
+variable "github_connection_arn" {
+  description = "ARN of the CodeStar connection to GitHub (required if enable_cicd_pipeline is true)"
+  type        = string
+  default     = ""
+}
+
+variable "github_repository" {
+  description = "GitHub repository in format 'owner/repo' (e.g., 'username/singhasuper-containerized')"
+  type        = string
+  default     = ""
+}
+
+variable "github_branch" {
+  description = "GitHub branch to monitor for changes"
+  type        = string
+  default     = "main"
+}
+
+variable "codebuild_compute_type" {
+  description = "CodeBuild compute type (BUILD_GENERAL1_SMALL, BUILD_GENERAL1_MEDIUM, BUILD_GENERAL1_LARGE)"
+  type        = string
+  default     = "BUILD_GENERAL1_SMALL"
+  
+  validation {
+    condition     = contains(["BUILD_GENERAL1_SMALL", "BUILD_GENERAL1_MEDIUM", "BUILD_GENERAL1_LARGE"], var.codebuild_compute_type)
+    error_message = "Compute type must be BUILD_GENERAL1_SMALL, BUILD_GENERAL1_MEDIUM, or BUILD_GENERAL1_LARGE."
+  }
+}
+
+variable "codebuild_image" {
+  description = "CodeBuild Docker image"
+  type        = string
+  default     = "aws/codebuild/standard:7.0"
+}
+
+variable "buildspec_path" {
+  description = "Path to buildspec file in repository"
+  type        = string
+  default     = "infrastructure/buildspec.yml"
+}
+
 # ==================== Tags ====================
 variable "additional_tags" {
   description = "Additional tags to apply to all resources"

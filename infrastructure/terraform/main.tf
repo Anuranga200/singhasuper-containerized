@@ -160,3 +160,35 @@ module "cloudfront" {
   alb_dns_name          = module.alb.alb_dns_name
   price_class           = var.cloudfront_price_class
 }
+
+# CI/CD Pipeline Module
+module "cicd_pipeline" {
+  source = "./modules/cicd-pipeline"
+  
+  # Only create if CI/CD is enabled
+  count = var.enable_cicd_pipeline ? 1 : 0
+
+  project_name = var.project_name
+  environment  = var.environment
+  aws_region   = var.aws_region
+
+  # GitHub Configuration
+  github_connection_arn = var.github_connection_arn
+  github_repository     = var.github_repository
+  github_branch         = var.github_branch
+
+  # ECR Configuration
+  ecr_repository_name = module.ecr.repository_name
+
+  # ECS Configuration
+  ecs_cluster_name = module.ecs.cluster_name
+  ecs_service_name = module.ecs.service_name
+
+  # CodeBuild Configuration
+  codebuild_compute_type = var.codebuild_compute_type
+  codebuild_image        = var.codebuild_image
+  buildspec_path         = var.buildspec_path
+
+  # Monitoring
+  log_retention_days = var.log_retention_days
+}
