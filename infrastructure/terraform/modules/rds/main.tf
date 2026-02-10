@@ -20,7 +20,7 @@ resource "aws_db_subnet_group" "main" {
 # DB Parameter Group
 resource "aws_db_parameter_group" "main" {
   name   = "${var.project_name}-mysql-params"
-  family = "mysql8.0"
+  family = "mysql8.4"
 
   # Performance optimizations
   parameter {
@@ -85,7 +85,7 @@ resource "aws_db_instance" "main" {
 
   # Engine configuration
   engine               = "mysql"
-  engine_version       = "8.0.39"  # Latest stable version
+  engine_version       = "8.4.7"  # Latest stable version
   instance_class       = var.db_instance_class
   allocated_storage    = var.allocated_storage
   storage_type         = "gp3"

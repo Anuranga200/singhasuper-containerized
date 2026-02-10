@@ -1827,7 +1827,6 @@ ls infrastructure/buildspec.yml
 - Use smaller RDS instance (db.t3.micro)
 - Enable RDS auto-pause (dev only)
 - Set CloudWatch log retention to 3 days
-
 ---
 
 ## 💰 Cost Optimization Tips

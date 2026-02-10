@@ -6,14 +6,14 @@ variable "project_name" {
   description = "Project name used for resource naming"
   type        = string
 }
-
+#"Environment name (development, staging, production)"
 variable "environment" {
-  description = "Environment name (development, staging, production)"
+  description = " production"
   type        = string
 }
 
 variable "aws_region" {
-  description = "AWS region"
+  description = "us-east-1"
   type        = string
 }
 

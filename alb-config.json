@@ -1,0 +1,34 @@
+{
+    "LoadBalancers": [
+        {
+            "LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:285229572166:loadbalancer/app/singha-loyalty-alb/b0eb433090933e5a",
+            "DNSName": "singha-loyalty-alb-467491726.us-east-1.elb.amazonaws.com",
+            "CanonicalHostedZoneId": "Z35SXDOTRQ7X7K",
+            "CreatedTime": "2026-01-31T14:20:19.901000+00:00",
+            "LoadBalancerName": "singha-loyalty-alb",
+            "Scheme": "internet-facing",
+            "VpcId": "vpc-0ec3e8f26026a4229",
+            "State": {
+                "Code": "active"
+            },
+            "Type": "application",
+            "AvailabilityZones": [
+                {
+                    "ZoneName": "us-east-1a",
+                    "SubnetId": "subnet-009e778803e1491c3",
+                    "LoadBalancerAddresses": []
+                },
+                {
+                    "ZoneName": "us-east-1b",
+                    "SubnetId": "subnet-0fd82a1e54e2d8dca",
+                    "LoadBalancerAddresses": []
+                }
+            ],
+            "SecurityGroups": [
+                "sg-0788e280aebce029a"
+            ],
+            "IpAddressType": "ipv4",
+            "EnablePrefixForIpv6SourceNat": "off"
+        }
+    ]
+}

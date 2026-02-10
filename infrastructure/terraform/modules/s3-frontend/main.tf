@@ -53,6 +53,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
     id     = "delete-old-versions"
     status = "Enabled"
 
+    filter{} # add by me
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -61,6 +62,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "frontend" {
   rule {
     id     = "abort-incomplete-multipart-uploads"
     status = "Enabled"
+      filter{} # add by me
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 7

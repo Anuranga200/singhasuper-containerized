@@ -8,7 +8,7 @@
 
 # ==================== ALB Security Group ====================
 resource "aws_security_group" "alb" {
-  name_description = "Security group for Application Load Balancer"
+  description = "Security group for Application Load Balancer"
   vpc_id      = var.vpc_id
 
   tags = {
@@ -61,7 +61,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_all" {
 
 # ==================== ECS Security Group ====================
 resource "aws_security_group" "ecs" {
-  name_description = "Security group for ECS tasks"
+  description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
   tags = {
@@ -99,7 +99,7 @@ resource "aws_vpc_security_group_egress_rule" "ecs_all" {
 
 # ==================== RDS Security Group ====================
 resource "aws_security_group" "rds" {
-  name_description = "Security group for RDS MySQL"
+  description = "Security group for RDS MySQL"
   vpc_id      = var.vpc_id
 
   tags = {
