@@ -1,0 +1,63 @@
+# PodDisruptionBudget for Backend Application
+# Ensures minimum availability during voluntary disruptions (node drains, updates)
+# Requirements: 11.4, 3.5
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend-api-pdb
+  namespace: backend
+  labels:
+    app: backend-api
+spec:
+  # Minimum number of pods that must remain available during disruptions
+  # With 2 replicas, this ensures at least 1 pod is always running
+  minAvailable: 1
+  
+  # Selector to match backend pods
+  selector:
+    matchLabels:
+      app: backend-api
+
+---
+# WHAT IS A POD DISRUPTION BUDGET?
+#
+# A PodDisruptionBudget (PDB) limits the number of pods that can be down simultaneously
+# during voluntary disruptions such as:
+# - Node drains (kubectl drain)
+# - Node upgrades
+# - Cluster autoscaler scale-downs
+# - Manual pod deletions
+#
+# PDBs do NOT protect against involuntary disruptions like:
+# - Node failures
+# - Out-of-memory kills
+# - Network partitions
+#
+# WHY USE A PDB?
+#
+# - Ensures high availability during maintenance operations
+# - Prevents all replicas from being terminated simultaneously
+# - Allows safe cluster upgrades without downtime
+#
+# CONFIGURATION OPTIONS:
+#
+# Option 1: minAvailable (used above)
+# - Specifies minimum number of pods that must be available
+# - Example: minAvailable: 1 (at least 1 pod must be running)
+#
+# Option 2: maxUnavailable (alternative)
+# - Specifies maximum number of pods that can be unavailable
+# - Example: maxUnavailable: 1 (at most 1 pod can be down)
+#
+# VERIFICATION:
+#
+# Check PDB status:
+# kubectl get pdb -n backend
+#
+# View PDB details:
+# kubectl describe pdb backend-api-pdb -n backend
+#
+# Test PDB (try to drain a node):
+# kubectl drain <node-name> --ignore-daemonsets --delete-emptydir-data
+# The drain will respect the PDB and wait for pods to be rescheduled

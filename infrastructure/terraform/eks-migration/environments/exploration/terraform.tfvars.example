@@ -1,0 +1,145 @@
+# Example Terraform Variables File
+# Copy this file to terraform.tfvars and fill in your actual values
+# DO NOT commit terraform.tfvars to version control (it contains sensitive data)
+
+# ============================================================================
+# AWS Configuration
+# ============================================================================
+
+aws_region = "us-east-1"
+
+# ============================================================================
+# Network Configuration
+# ============================================================================
+
+# VPC ID where your existing ECS infrastructure is deployed
+vpc_id = "vpc-0123456789abcdef0"
+
+# Private subnet IDs (must span at least 2 availability zones)
+# These should be the same subnets used by your ECS tasks
+subnet_ids = [
+  "subnet-0123456789abcdef0",  # Private subnet in AZ-1
+  "subnet-0123456789abcdef1"   # Private subnet in AZ-2
+]
+
+# Security group ID of your existing RDS database
+rds_security_group_id = "sg-0123456789abcdef0"
+
+# ============================================================================
+# EKS Cluster Configuration
+# ============================================================================
+
+cluster_name       = "backend-eks-exploration"
+kubernetes_version = "1.28"
+
+# Enable both public and private endpoint access
+endpoint_public_access  = true
+endpoint_private_access = true
+
+# Enable all cluster log types for troubleshooting
+enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
+# ============================================================================
+# EKS Node Group Configuration
+# ============================================================================
+
+node_group_name = "backend-nodes"
+
+# Instance types (t3.small recommended, t3.micro for free tier)
+instance_types = ["t3.small"]
+
+# Use ON_DEMAND for stability during exploration
+capacity_type = "ON_DEMAND"
+
+# Node scaling configuration
+desired_size = 2
+min_size     = 2
+max_size     = 3
+
+# Disk size per node (20GB minimum for container images)
+disk_size = 20
+
+# ============================================================================
+# Kubernetes Application Configuration
+# ============================================================================
+
+namespace = "backend"
+app_name  = "backend-api"
+
+# Full ECR image URI - replace with your actual ECR repository
+container_image = "123456789012.dkr.ecr.us-east-1.amazonaws.com/backend:latest"
+
+container_port = 3000
+replicas       = 2
+
+# ============================================================================
+# Resource Limits
+# ============================================================================
+
+# CPU and memory requests (guaranteed resources)
+cpu_request    = "250m"   # 0.25 vCPU
+memory_request = "512Mi"  # 512 MB
+
+# CPU and memory limits (maximum resources)
+cpu_limit    = "500m"  # 0.5 vCPU
+memory_limit = "1Gi"   # 1 GB
+
+# ============================================================================
+# Database Configuration
+# ============================================================================
+
+# RDS endpoint - replace with your actual RDS endpoint
+db_host = "backend-db.xxxxxxxxxxxxx.us-east-1.rds.amazonaws.com"
+
+db_name = "backend_production"
+
+# Database credentials - KEEP THESE SECRET!
+db_user     = "backend_user"
+db_password = "REPLACE_WITH_ACTUAL_PASSWORD"
+
+# JWT secret for authentication - KEEP THIS SECRET!
+jwt_secret = "REPLACE_WITH_ACTUAL_JWT_SECRET"
+
+# ============================================================================
+# Health Check Configuration
+# ============================================================================
+
+health_check_path     = "/health"
+health_check_interval = 15
+health_check_timeout  = 5
+healthy_threshold     = 2
+unhealthy_threshold   = 2
+
+# ============================================================================
+# ALB Configuration
+# ============================================================================
+
+# ARN of your existing Application Load Balancer
+alb_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/backend-alb/1234567890abcdef"
+
+# ARN of your existing ALB listener (HTTP:80 or HTTPS:443)
+alb_listener_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/backend-alb/1234567890abcdef/1234567890abcdef"
+
+# ARN of your existing ECS target group
+ecs_target_group_arn = "arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/ecs-backend-tg/1234567890abcdef"
+
+# Name for the new EKS target group
+eks_target_group_name = "eks-backend-tg"
+
+# ============================================================================
+# Traffic Routing Configuration
+# ============================================================================
+
+# Start with 0% traffic to EKS for safe deployment
+# Gradually increase eks_weight and decrease ecs_weight to shift traffic
+# Example progression: 0/100 -> 10/90 -> 25/75 -> 50/50 -> 75/25 -> 100/0
+
+eks_weight = 0    # Start with 0% to EKS
+ecs_weight = 100  # Keep 100% to ECS initially
+
+# ============================================================================
+# Optional Features
+# ============================================================================
+
+# Enable HorizontalPodAutoscaler for automatic scaling based on CPU/memory
+enable_hpa = false

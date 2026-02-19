@@ -1,0 +1,76 @@
+# Kubernetes Ingress for Backend Application
+# Configures AWS Load Balancer Controller to register pods with ALB
+# Requirements: 1.2, 3.5
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-api
+  namespace: backend
+  labels:
+    app: backend-api
+  annotations:
+    # AWS Load Balancer Controller annotations
+    # These annotations configure how the ALB controller manages the load balancer
+    
+    # Scheme: internal means ALB is not internet-facing (for integration with existing ALB)
+    alb.ingress.kubernetes.io/scheme: internal
+    
+    # Target type: ip means route directly to pod IPs (not NodePort)
+    # This provides better performance and avoids extra network hops
+    alb.ingress.kubernetes.io/target-type: ip
+    
+    # Health check configuration
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: "5"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/success-codes: "200"
+    
+    # Listen ports
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    
+    # Tags for the target group
+    alb.ingress.kubernetes.io/tags: Environment=exploration,ManagedBy=eks,Purpose=migration-testing
+    
+    # Target group attributes
+    alb.ingress.kubernetes.io/target-group-attributes: deregistration_delay.timeout_seconds=30
+spec:
+  # Ingress class - tells Kubernetes to use AWS Load Balancer Controller
+  ingressClassName: alb
+  
+  # Routing rules
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-api
+            port:
+              number: 80
+
+---
+# IMPORTANT NOTES:
+#
+# 1. AWS Load Balancer Controller must be installed before applying this manifest
+#    Install using Helm:
+#    helm repo add eks https://aws.github.io/eks-charts
+#    helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+#      -n kube-system \
+#      --set clusterName=<cluster-name> \
+#      --set serviceAccount.create=true \
+#      --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<role-arn>
+#
+# 2. This Ingress creates a NEW target group automatically
+#    You'll need to manually configure your existing ALB listener to route traffic
+#    to this target group using weighted routing
+#
+# 3. The target-type=ip annotation requires that your EKS nodes can communicate
+#    with the ALB (security groups must allow traffic)
+#
+# 4. To find the target group ARN created by this Ingress:
+#    kubectl get ingress backend-api -n backend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+#    Then search for target groups in AWS Console with tag "kubernetes.io/ingress-name=backend-api"

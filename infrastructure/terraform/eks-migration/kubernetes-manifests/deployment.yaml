@@ -1,0 +1,142 @@
+# Kubernetes Deployment for Backend Application
+# Manages pod replicas with rolling updates, health checks, and resource limits
+# Requirements: 1.2, 3.5
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  namespace: backend
+  labels:
+    app: backend-api
+    version: v1
+spec:
+  # Number of pod replicas (matches ECS desired count)
+  replicas: 2
+  
+  # Selector to match pods
+  selector:
+    matchLabels:
+      app: backend-api
+  
+  # Rolling update strategy for zero-downtime deployments
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # Allow 1 extra pod during updates
+      maxUnavailable: 0  # Ensure at least desired count is always available
+  
+  # Pod template
+  template:
+    metadata:
+      labels:
+        app: backend-api
+        version: v1
+    spec:
+      # Pod anti-affinity to distribute replicas across different nodes
+      # This improves availability by avoiding single points of failure
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - backend-api
+              topologyKey: kubernetes.io/hostname
+      
+      containers:
+      - name: backend
+        # IMPORTANT: Replace with your actual ECR image URI
+        image: <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/backend:latest
+        
+        # Container port
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        
+        # Environment variables
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        
+        # Database configuration from secrets
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db_host
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db_name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db_user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: db_password
+        
+        # JWT secret from secrets
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: jwt_secret
+        
+        # Resource requests and limits
+        # Requests: Guaranteed resources for the pod
+        # Limits: Maximum resources the pod can use
+        resources:
+          requests:
+            cpu: "250m"      # 0.25 vCPU
+            memory: "512Mi"  # 512 MB
+          limits:
+            cpu: "500m"      # 0.5 vCPU
+            memory: "1Gi"    # 1 GB
+        
+        # Liveness probe - checks if container is alive
+        # Kubernetes will restart the container if this fails
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30  # Wait 30s after container starts
+          periodSeconds: 10        # Check every 10s
+          timeoutSeconds: 5        # Timeout after 5s
+          failureThreshold: 3      # Restart after 3 consecutive failures
+        
+        # Readiness probe - checks if container is ready to serve traffic
+        # Kubernetes will remove pod from service if this fails
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10  # Wait 10s after container starts
+          periodSeconds: 5         # Check every 5s
+          timeoutSeconds: 3        # Timeout after 3s
+          failureThreshold: 3      # Mark unready after 3 consecutive failures
+        
+        # Startup probe - checks if application has started
+        # Gives slow-starting applications more time before liveness checks begin
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 0   # Start checking immediately
+          periodSeconds: 5         # Check every 5s
+          timeoutSeconds: 3        # Timeout after 3s
+          failureThreshold: 30     # Allow up to 150s for startup (30 * 5s)

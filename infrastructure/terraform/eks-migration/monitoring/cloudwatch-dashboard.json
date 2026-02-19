@@ -1,0 +1,120 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ECS", "CPUUtilization", { "stat": "Average", "label": "ECS CPU" } ],
+          [ "ContainerInsights", "pod_cpu_utilization", { "stat": "Average", "label": "EKS CPU" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "CPU Utilization: ECS vs EKS",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ECS", "MemoryUtilization", { "stat": "Average", "label": "ECS Memory" } ],
+          [ "ContainerInsights", "pod_memory_utilization", { "stat": "Average", "label": "EKS Memory" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "Memory Utilization: ECS vs EKS",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "TargetResponseTime", { "stat": "Average" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ALB Response Time",
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "RequestCount", { "stat": "Sum" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ALB Request Count",
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "HealthyHostCount", { "label": "ECS Healthy Hosts" } ],
+          [ ".", ".", { "label": "EKS Healthy Hosts" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "Target Health: ECS vs EKS",
+        "period": 300
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "ContainerInsights", "pod_number_of_containers", { "stat": "Average" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "EKS Pod Count",
+        "period": 300
+      }
+    },
+    {
+      "type": "log",
+      "properties": {
+        "query": "SOURCE '/aws/eks/backend-eks-exploration/application'\n| fields @timestamp, @message\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 20",
+        "region": "us-east-1",
+        "title": "Recent Errors (EKS)",
+        "stacked": false
+      }
+    },
+    {
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", { "stat": "Sum" } ],
+          [ ".", "HTTPCode_Target_4XX_Count", { "stat": "Sum" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ALB Error Rates",
+        "period": 300
+      }
+    }
+  ]
+}

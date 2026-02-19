@@ -1,0 +1,113 @@
+# HorizontalPodAutoscaler for Backend Application (Optional)
+# Automatically scales pod replicas based on CPU and memory utilization
+# Requirements: 7.5, 3.5
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-api-hpa
+  namespace: backend
+  labels:
+    app: backend-api
+spec:
+  # Target deployment to scale
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-api
+  
+  # Replica limits
+  minReplicas: 2  # Minimum replicas (matches deployment default)
+  maxReplicas: 3  # Maximum replicas (limited by node capacity)
+  
+  # Scaling metrics
+  metrics:
+  # CPU utilization target
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Scale up when average CPU > 70%
+  
+  # Memory utilization target
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80  # Scale up when average memory > 80%
+  
+  # Scaling behavior
+  behavior:
+    # Scale down behavior
+    scaleDown:
+      stabilizationWindowSeconds: 300  # Wait 5 minutes before scaling down
+      policies:
+      - type: Percent
+        value: 50          # Scale down by max 50% of current replicas
+        periodSeconds: 60  # Per minute
+    
+    # Scale up behavior
+    scaleUp:
+      stabilizationWindowSeconds: 0  # Scale up immediately
+      policies:
+      - type: Percent
+        value: 100         # Scale up by max 100% of current replicas (double)
+        periodSeconds: 30  # Per 30 seconds
+
+---
+# WHAT IS A HORIZONTAL POD AUTOSCALER?
+#
+# HPA automatically adjusts the number of pod replicas based on observed metrics:
+# - CPU utilization
+# - Memory utilization
+# - Custom metrics (e.g., request rate, queue length)
+#
+# HOW IT WORKS:
+#
+# 1. HPA controller checks metrics every 15 seconds (default)
+# 2. Calculates desired replicas based on current utilization
+# 3. Updates deployment replica count if needed
+# 4. Respects min/max replica limits
+#
+# FORMULA:
+# desiredReplicas = ceil[currentReplicas * (currentMetric / targetMetric)]
+#
+# Example:
+# - Current replicas: 2
+# - Current CPU: 85%
+# - Target CPU: 70%
+# - Desired replicas: ceil[2 * (85 / 70)] = ceil[2.43] = 3
+#
+# PREREQUISITES:
+#
+# 1. Metrics Server must be installed in the cluster:
+#    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+#
+# 2. Pods must have resource requests defined (already configured in deployment.yaml)
+#
+# VERIFICATION:
+#
+# Check HPA status:
+# kubectl get hpa -n backend
+#
+# View HPA details:
+# kubectl describe hpa backend-api-hpa -n backend
+#
+# Watch HPA in real-time:
+# kubectl get hpa -n backend --watch
+#
+# TESTING:
+#
+# Generate load to trigger scaling:
+# kubectl run -it --rm load-generator --image=busybox --restart=Never -- /bin/sh
+# while true; do wget -q -O- http://backend-api.backend.svc.cluster.local; done
+#
+# IMPORTANT NOTES:
+#
+# - HPA is OPTIONAL for this exploration setup
+# - With only 2 nodes (t3.small), scaling is limited to 3 replicas max
+# - For production, consider Cluster Autoscaler to scale nodes automatically
+# - HPA conflicts with manual replica scaling (don't use both)
+# - Conservative scale-down prevents thrashing during traffic fluctuations

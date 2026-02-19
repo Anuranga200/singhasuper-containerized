@@ -1,0 +1,68 @@
+# Terraform State Files
+# These contain sensitive information and should never be committed
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform Variable Files with Secrets
+# terraform.tfvars contains actual secrets and credentials
+terraform.tfvars
+*.auto.tfvars
+
+# Terraform Directories
+# Local plugins and modules cache
+.terraform/
+.terraform.lock.hcl
+
+# Crash Log Files
+crash.log
+crash.*.log
+
+# Override Files
+# Used for local development overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI Configuration Files
+.terraformrc
+terraform.rc
+
+# Kubernetes Config Files
+# May contain sensitive cluster credentials
+kubeconfig
+*.kubeconfig
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backup Files
+*.bak
+*.backup
+
+# Temporary Files
+*.tmp
+.temp/
+
+# Plan Files
+# May contain sensitive information
+*.tfplan
+*.plan
+
+# Environment Files
+# May contain secrets
+.env
+.env.local
+.env.*.local
+
+# AWS Credentials
+# Should never be committed
+.aws/
+credentials
+config
