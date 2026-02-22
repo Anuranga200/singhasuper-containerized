@@ -295,3 +295,454 @@ aws iam create-access-key --user-name github-actions-deployer
 - Follows AWS security best practices
 - Easier to audit and maintain
 
+---
+
+## 4. Phase 2: Backend Testing Infrastructure
+
+**Detailed Guide**: See [02-BACKEND-TESTING.md](./02-BACKEND-TESTING.md)
+
+### Quick Overview
+
+Backend testing is critical for CI/CD success. This phase sets up:
+
+1. **Vitest Framework**: Modern, fast testing framework
+2. **Test Database**: Isolated MySQL for integration tests
+3. **Unit Tests**: Controller and middleware tests
+4. **Integration Tests**: Full API endpoint tests
+5. **Coverage Enforcement**: Minimum 60% threshold
+
+### Key Steps
+
+1. Install Vitest and dependencies
+2. Create test configuration
+3. Setup test database
+4. Write unit tests for controllers
+5. Write integration tests for APIs
+6. Configure coverage thresholds
+7. Run tests locally to verify
+
+### Time Required
+
+4-6 hours
+
+### Success Criteria
+
+- ✅ All tests pass locally
+- ✅ Coverage meets 60% threshold
+- ✅ Integration tests work with MySQL
+- ✅ Test scripts added to package.json
+
+**Full Details**: [02-BACKEND-TESTING.md](./02-BACKEND-TESTING.md)
+
+---
+
+## 5. Phase 3: CI Workflow Implementation
+
+**Detailed Guide**: See [03-CI-WORKFLOW.md](./03-CI-WORKFLOW.md)
+
+### Quick Overview
+
+The CI workflow validates every code change before it can be merged. It includes:
+
+1. **Lint & Format**: Code quality checks
+2. **Frontend Tests**: Vitest with coverage
+3. **Backend Tests**: Vitest with MySQL service
+4. **Security Scan**: npm audit + Trivy
+5. **Build Frontend**: Vite production build
+6. **Build Backend**: Docker image with scanning
+
+### Workflow Structure
+
+```yaml
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: ['feature/**', 'bugfix/**', 'hotfix/**']
+
+jobs:
+  lint-and-format:      # 2 min
+  test-frontend:        # 3 min (parallel)
+  test-backend:         # 4 min (parallel)
+  security-scan:        # 3 min (parallel)
+  build-frontend:       # 2 min
+  build-backend:        # 3 min
+  
+Total Time: ~8 minutes (with caching and parallelization)
+```
+
+### Key Features
+
+- **Parallel Execution**: Tests run simultaneously
+- **Caching**: npm and Docker layer caching
+- **Coverage Enforcement**: Fails if below threshold
+- **Security Scanning**: Multi-layer vulnerability detection
+- **PR Comments**: Automatic feedback on PRs
+- **Artifact Upload**: Test results and reports saved
+
+### Time Required
+
+3-4 hours
+
+### Success Criteria
+
+- ✅ Workflow file created and valid
+- ✅ All jobs pass on test branch
+- ✅ PR comments appear correctly
+- ✅ Security scans complete
+- ✅ Artifacts uploaded successfully
+
+**Full Details**: [03-CI-WORKFLOW.md](./03-CI-WORKFLOW.md)
+
+---
+
+## 6. Phase 4: CD Staging Workflow
+
+**Detailed Guide**: See [04-CD-STAGING.md](./04-CD-STAGING.md) *(to be created)*
+
+### Quick Overview
+
+The CD Staging workflow automatically deploys to staging environment when code is merged to `develop` branch.
+
+### Workflow Steps
+
+1. **Run CI Workflow**: Reuse CI checks
+2. **Build & Push to ECR**: Tag with staging labels
+3. **Deploy to ECS**: Update staging service
+4. **Run Smoke Tests**: Validate deployment
+5. **Notify Team**: Slack notification
+
+### Key Features
+
+- **Automatic Deployment**: No manual intervention
+- **Smoke Tests**: Basic health checks
+- **Rollback on Failure**: Automatic revert
+- **Environment Isolation**: Staging-specific secrets
+
+### Time Required
+
+2-3 hours
+
+### Success Criteria
+
+- ✅ Deploys automatically on develop push
+- ✅ ECS service updates successfully
+- ✅ Smoke tests pass
+- ✅ Rollback works on failure
+
+---
+
+## 7. Phase 5: CD Production Workflow
+
+**Detailed Guide**: See [05-CD-PRODUCTION.md](./05-CD-PRODUCTION.md) *(to be created)*
+
+### Quick Overview
+
+The CD Production workflow deploys to production with manual approval gates and comprehensive validation.
+
+### Workflow Steps
+
+1. **Run CI Workflow**: Full validation
+2. **Build & Push to ECR**: Production tags
+3. **Manual Approval**: Required reviewers approve
+4. **Deploy to ECS**: Update production service
+5. **Post-Deploy Validation**: Comprehensive tests
+6. **Create Release**: GitHub release with changelog
+7. **Notify Team**: Success/failure notification
+
+### Key Features
+
+- **Manual Approval**: 2 reviewers required
+- **Extended Validation**: Comprehensive health checks
+- **Automated Rollback**: On any failure
+- **Release Creation**: Automatic GitHub releases
+- **Audit Trail**: Full deployment history
+
+### Time Required
+
+2-3 hours
+
+### Success Criteria
+
+- ✅ Approval gate works correctly
+- ✅ Production deployment succeeds
+- ✅ Rollback mechanism tested
+- ✅ GitHub releases created
+
+---
+
+## 8. Phase 6: Security & Optimization
+
+**Detailed Guide**: See [06-SECURITY-OPTIMIZATION.md](./06-SECURITY-OPTIMIZATION.md) *(to be created)*
+
+### Quick Overview
+
+Enhance security posture and optimize pipeline performance.
+
+### Security Enhancements
+
+1. **OIDC Authentication**: Replace access keys
+2. **Secrets Manager**: Use AWS Secrets Manager
+3. **CodeQL Analysis**: Advanced SAST scanning
+4. **Dependabot**: Automated dependency updates
+
+### Optimization Strategies
+
+1. **Advanced Caching**: Optimize cache keys
+2. **Conditional Execution**: Skip unnecessary jobs
+3. **Docker Optimization**: Multi-stage builds
+4. **Parallel Matrix**: Test multiple versions
+
+### Time Required
+
+3-4 hours
+
+### Success Criteria
+
+- ✅ OIDC authentication working
+- ✅ Pipeline time < 10 minutes
+- ✅ Cache hit rate > 80%
+- ✅ Security scans comprehensive
+
+---
+
+## 9. Phase 7: Monitoring & Observability
+
+**Detailed Guide**: See [07-MONITORING.md](./07-MONITORING.md) *(to be created)*
+
+### Quick Overview
+
+Setup monitoring, notifications, and metrics tracking.
+
+### Components
+
+1. **Slack Notifications**: Real-time alerts
+2. **GitHub Deployments API**: Deployment tracking
+3. **Metrics Collection**: Build time, success rate
+4. **Dashboard**: Visualize pipeline metrics
+
+### Notification Types
+
+- ✅ Deployment success
+- ❌ Deployment failure
+- ⚠️ Security vulnerabilities found
+- 📊 Weekly metrics summary
+
+### Time Required
+
+2-3 hours
+
+### Success Criteria
+
+- ✅ Slack notifications working
+- ✅ Deployment history tracked
+- ✅ Metrics collected
+- ✅ Team receives alerts
+
+---
+
+## 10. Testing & Validation
+
+### End-to-End Testing Checklist
+
+#### CI Workflow Testing
+
+- [ ] Create feature branch
+- [ ] Push code changes
+- [ ] Verify CI runs automatically
+- [ ] Check all jobs pass
+- [ ] Create PR and verify status checks
+- [ ] Verify PR comments appear
+- [ ] Test failure scenarios (failing test, lint error)
+- [ ] Verify artifacts are uploaded
+
+#### CD Staging Testing
+
+- [ ] Merge PR to develop
+- [ ] Verify staging workflow triggers
+- [ ] Monitor ECR image push
+- [ ] Verify ECS deployment
+- [ ] Run smoke tests manually
+- [ ] Check application in staging
+- [ ] Test rollback mechanism
+
+#### CD Production Testing
+
+- [ ] Create PR to main
+- [ ] Merge after approval
+- [ ] Verify production workflow triggers
+- [ ] Test approval gate
+- [ ] Approve deployment
+- [ ] Monitor production deployment
+- [ ] Verify post-deployment validation
+- [ ] Test rollback in production
+
+### Performance Testing
+
+- [ ] Measure pipeline duration
+- [ ] Check cache hit rates
+- [ ] Monitor GitHub Actions usage
+- [ ] Verify parallel execution
+- [ ] Test with multiple concurrent PRs
+
+### Security Testing
+
+- [ ] Verify vulnerability scanning works
+- [ ] Test with known vulnerable package
+- [ ] Check GitHub Security tab
+- [ ] Verify SARIF uploads
+- [ ] Test secret masking in logs
+
+---
+
+## 11. Troubleshooting Guide
+
+**Comprehensive Guide**: See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+
+### Quick Reference
+
+#### Common Issues
+
+1. **AWS Authentication Fails**
+   - Check GitHub secrets
+   - Verify IAM permissions
+   - Test credentials locally
+
+2. **Tests Fail in CI**
+   - Check Node.js version
+   - Verify environment variables
+   - Check MySQL service
+
+3. **Docker Build Fails**
+   - Test build locally
+   - Check Dockerfile syntax
+   - Verify build context
+
+4. **ECS Deployment Hangs**
+   - Check service events
+   - Verify task definition
+   - Check security groups
+
+5. **Pipeline Too Slow**
+   - Check cache hit rates
+   - Optimize Docker layers
+   - Review job dependencies
+
+**Full Troubleshooting Guide**: [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+
+---
+
+## 12. Best Practices & Lessons Learned
+
+### Development Workflow
+
+1. **Branch Strategy**
+   - `feature/*` → develop → main
+   - Always create PRs
+   - Never push directly to main/develop
+
+2. **Commit Messages**
+   - Use conventional commits
+   - `feat:`, `fix:`, `docs:`, `test:`
+   - Clear, descriptive messages
+
+3. **Testing**
+   - Write tests before pushing
+   - Run tests locally first
+   - Aim for high coverage
+
+### CI/CD Best Practices
+
+1. **Keep Pipelines Fast**
+   - Target < 10 minutes total
+   - Use caching aggressively
+   - Run jobs in parallel
+   - Fail fast on errors
+
+2. **Security First**
+   - Scan early and often
+   - Block on critical vulnerabilities
+   - Rotate credentials regularly
+   - Use least privilege IAM
+
+3. **Clear Feedback**
+   - Descriptive job names
+   - Clear error messages
+   - PR comments with results
+   - Slack notifications
+
+4. **Maintainability**
+   - Document everything
+   - Use reusable workflows
+   - Pin action versions
+   - Regular updates
+
+### Cost Optimization
+
+1. **GitHub Actions Minutes**
+   - Use caching to reduce time
+   - Cancel in-progress runs
+   - Skip unnecessary jobs
+   - Consider self-hosted runners
+
+2. **AWS Costs**
+   - Clean up old ECR images
+   - Right-size ECS tasks
+   - Use spot instances (if applicable)
+   - Monitor usage
+
+### Team Practices
+
+1. **Communication**
+   - Notify team of pipeline changes
+   - Document new workflows
+   - Share learnings
+   - Regular retrospectives
+
+2. **Continuous Improvement**
+   - Monitor metrics
+   - Identify bottlenecks
+   - Optimize regularly
+   - Stay updated with best practices
+
+---
+
+## Conclusion
+
+You now have a complete, production-grade CI/CD pipeline with:
+
+- ✅ Comprehensive testing (unit + integration)
+- ✅ Multi-layer security scanning
+- ✅ Staged deployments with approval gates
+- ✅ Automated rollbacks
+- ✅ Performance optimization
+- ✅ Monitoring and observability
+
+### Next Steps
+
+1. **Start Implementation**: Follow the phase-by-phase guides
+2. **Test Thoroughly**: Validate each phase before moving on
+3. **Monitor & Optimize**: Track metrics and improve
+4. **Share Knowledge**: Document learnings with team
+
+### Resources
+
+- **Detailed Guides**: See `docs/cicd/` directory
+- **Task Checklist**: `.kiro/specs/github-actions-cicd-pipeline/tasks.md`
+- **Architecture**: `docs/cicd/ARCHITECTURE_DIAGRAMS.md`
+- **Troubleshooting**: `docs/cicd/TROUBLESHOOTING.md`
+
+### Support
+
+- **Documentation**: Start with [README.md](./README.md)
+- **Quick Reference**: [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
+- **Comparison**: [COMPARISON_WITH_BASIC_CICD.md](./COMPARISON_WITH_BASIC_CICD.md)
+
+---
+
+**Good luck with your implementation!** 🚀
+
+Remember: This is a marathon, not a sprint. Take your time, test thoroughly, and don't hesitate to ask for help.
+
