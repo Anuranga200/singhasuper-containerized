@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
+// Then use: tailwindcssAnimate
 
 export default {
   darkMode: ["class"],
