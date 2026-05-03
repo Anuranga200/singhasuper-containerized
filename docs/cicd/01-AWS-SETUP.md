@@ -150,8 +150,8 @@ Navigate to: Repository Settings → Secrets and variables → Actions → New r
 ### Required Repository Secrets
 
 ```yaml
-AWS_ACCESS_KEY_ID: AKIA... (if using access keys)
-AWS_SECRET_ACCESS_KEY: ... (if using access keys)
+AWS_ACCESS_KEY_ID: AKIA... 
+AWS_SECRET_ACCESS_KEY: ... 
 AWS_REGION: us-east-1
 AWS_ACCOUNT_ID: 123456789012
 ECR_REPOSITORY_BACKEND: singha-loyalty-backend
