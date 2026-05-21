@@ -2,6 +2,8 @@
 
 Express.js REST API server for the Singha Loyalty System, designed to run on AWS ECS Fargate with RDS MySQL.
 
+#add ignore
+
 ## Features
 
 - ✅ RESTful API with Express.js
