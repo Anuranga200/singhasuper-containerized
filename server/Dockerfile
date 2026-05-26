@@ -31,8 +31,8 @@ COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
 
 # Make entrypoint script executable
 USER root
-RUN chmod +x docker-entrypoint.sh
-USER nodejs
+# RUN chmod +x docker-entrypoint.sh
+# USER nodejs
 
 # Expose port
 EXPOSE 3000
@@ -44,5 +44,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
+CMD ["node", "src/index.js"]
+
 # Start application with migration
-CMD ["sh", "docker-entrypoint.sh"]
+# CMD ["sh", "docker-entrypoint.sh"]
